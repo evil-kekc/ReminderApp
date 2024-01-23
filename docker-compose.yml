@@ -13,8 +13,8 @@ services:
       - .env
     networks:
       - app
-    ports:
-      - "${APP_PORT}:${APP_PORT}"
+#    ports:
+#      - "${APP_PORT}:${APP_PORT}"
     logging:
       driver: "json-file"
       options:
@@ -38,6 +38,25 @@ services:
       MONGO_INITDB_PASSWORD: ${MONGO_INITDB_PASSWORD}
     networks:
       - app
+
+  nginx:
+    container_name: nginx
+    image: nginx:alpine
+    depends_on:
+      - app
+    ports:
+      - "${NGINX_PORT}:${NGINX_PORT}"
+    volumes:
+      - ./nginx/conf.d/:/etc/nginx/conf.d/:ro
+    networks:
+      - app
+    restart: always
+    healthcheck:
+      test: curl --fail http://app:5000/healthcheck || exit 1
+      interval: 30s
+      retries: 5
+      timeout: 10s
+      start_period: 5s
 
 networks:
   app:
