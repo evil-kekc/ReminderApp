@@ -2,11 +2,17 @@ import os
 
 import uvicorn
 from fastapi import FastAPI
+from starlette.responses import RedirectResponse
 
 from routers import reminder
 
 app = FastAPI()
 app.include_router(reminder.router, prefix="/reminders", tags=["reminders"])
+
+
+@app.get("/")
+async def base_page():
+    return RedirectResponse(url=app.url_path_for('home'))
 
 
 @app.get("/healthcheck", tags=["healthcheck"])
