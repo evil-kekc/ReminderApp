@@ -1,0 +1,52 @@
+version: '3.9'
+
+services:
+  app:
+    container_name: app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - ./app:/app
+    env_file:
+      - .env
+    networks:
+      - app
+    ports:
+      - "${APP_PORT}:${APP_PORT}"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+    healthcheck:
+      test: curl --fail http://app:5000/healthcheck || exit 1
+      interval: 30s
+      retries: 5
+      timeout: 10s
+      start_period: 10s
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    volumes:
+      - ./data:/data/db
+    environment:
+      MONGO_INITDB_USERNAME: ${MONGO_INITDB_USERNAME}
+      MONGO_INITDB_PASSWORD: ${MONGO_INITDB_PASSWORD}
+    networks:
+      - app
+
+networks:
+  app:
+    driver: "bridge"
+
+volumes:
+  mongodb_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: 'bind'
+      device: ./data
