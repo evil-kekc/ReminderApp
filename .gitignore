@@ -1,5 +1,8 @@
 .idea/
-__pycache__/
-venv/
+**__pycache__/
+.venv/
+venv
 *.log
 *.db
+data/
+**logs
